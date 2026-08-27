@@ -700,11 +700,30 @@ namespace SourceGit.Views
             }
         }
 
+        private void AddPinMenuItem(ContextMenu menu, ViewModels.Repository repo, Models.Branch branch)
+        {
+            if (branch.IsDetachedHead)
+                return;
+
+            var pin = new MenuItem();
+            pin.Header = App.Text(repo.IsBranchPinned(branch) ? "BranchCM.Unpin" : "BranchCM.Pin");
+            pin.Icon = this.CreateMenuIcon("Icons.Pin");
+            pin.Click += (_, e) =>
+            {
+                repo.TogglePinnedBranch(branch);
+                e.Handled = true;
+            };
+            menu.Items.Add(pin);
+            menu.Items.Add(new MenuItem() { Header = "-" });
+        }
+
         private ContextMenu CreateContextMenuForLocalBranch(ViewModels.Repository repo, Models.Branch branch)
         {
             var current = repo.CurrentBranch;
             var menu = new ContextMenu();
             var upstream = repo.Branches.Find(x => x.FullName.Equals(branch.Upstream, StringComparison.Ordinal));
+
+            AddPinMenuItem(menu, repo, branch);
 
             var push = new MenuItem();
             push.Header = App.Text("BranchCM.Push", branch.Name);
@@ -1181,6 +1200,8 @@ namespace SourceGit.Views
         {
             var menu = new ContextMenu();
             var name = branch.FriendlyName;
+
+            AddPinMenuItem(menu, repo, branch);
 
             var checkout = new MenuItem();
             checkout.Header = App.Text("BranchCM.Checkout", name);

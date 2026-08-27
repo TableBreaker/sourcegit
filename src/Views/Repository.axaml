@@ -205,9 +205,29 @@
           </TextBox.InnerRightContent>
         </TextBox>
 
-        <Grid Grid.Row="2" x:Name="LeftSidebarGroups" Margin="0,4,0,0" RowDefinitions="28,Auto,28,Auto,28,Auto,28,Auto,28,Auto" SizeChanged="OnLeftSidebarSizeChanged">
+        <Grid Grid.Row="2" x:Name="LeftSidebarGroups" Margin="0,4,0,0" RowDefinitions="28,Auto,28,Auto,28,Auto,28,Auto,28,Auto,28,Auto" SizeChanged="OnLeftSidebarSizeChanged">
+          <!-- Pinned Branches -->
+          <ToggleButton Grid.Row="0" Classes="group_expander" IsChecked="{Binding IsPinnedBranchGroupExpanded, Mode=TwoWay}">
+            <Grid ColumnDefinitions="16,*">
+              <Path Grid.Column="0" Width="11" Height="11" HorizontalAlignment="Left" Data="{StaticResource Icons.Pin}" Fill="{DynamicResource Brush.FG2}"/>
+              <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <TextBlock Classes="group_header_label" Text="{DynamicResource Text.Repository.PinnedBranches}"/>
+                <TextBlock Classes="group_header_label" Text="{Binding PinnedBranchesCount, StringFormat='({0})'}" Margin="4,0,0,0"/>
+              </StackPanel>
+            </Grid>
+          </ToggleButton>
+          <v:BranchTree Grid.Row="1"
+                        x:Name="PinnedBranchTree"
+                        Height="0"
+                        Margin="8,0,4,0"
+                        Nodes="{Binding PinnedBranchTrees}"
+                        IsVisible="{Binding IsPinnedBranchGroupExpanded}"
+                        SelectionChanged="OnPinnedBranchTreeSelectionChanged"
+                        RowsChanged="OnLeftSidebarRowsChanged"
+                        SearchRequested="OnToggleFilter"/>
+
           <!-- Local Branches -->
-          <ToggleButton Grid.Row="0" Classes="group_expander" IsChecked="{Binding IsLocalBranchGroupExpanded, Mode=TwoWay}">
+          <ToggleButton Grid.Row="2" Classes="group_expander" IsChecked="{Binding IsLocalBranchGroupExpanded, Mode=TwoWay}">
             <Grid ColumnDefinitions="16,*,Auto,Auto">
               <Path Grid.Column="0" Width="11" Height="11" HorizontalAlignment="Left" Data="{StaticResource Icons.Local}" Fill="{DynamicResource Brush.FG2}"/>
               <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -237,7 +257,7 @@
               </Button>
             </Grid>
           </ToggleButton>
-          <v:BranchTree Grid.Row="1"
+          <v:BranchTree Grid.Row="3"
                         x:Name="LocalBranchTree"
                         Height="0"
                         Margin="8,0,4,0"
@@ -248,7 +268,7 @@
                         SearchRequested="OnToggleFilter"/>
 
           <!-- Remotes -->
-          <ToggleButton Grid.Row="2" Classes="group_expander" IsChecked="{Binding IsRemoteGroupExpanded, Mode=TwoWay}">
+          <ToggleButton Grid.Row="4" Classes="group_expander" IsChecked="{Binding IsRemoteGroupExpanded, Mode=TwoWay}">
             <Grid ColumnDefinitions="16,*,Auto,Auto">
               <Path Grid.Column="0" Width="12" Height="12" HorizontalAlignment="Left" Data="{StaticResource Icons.Remotes}" Fill="{DynamicResource Brush.FG2}"/>
               <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -271,7 +291,7 @@
               </Button>
             </Grid>
           </ToggleButton>
-          <v:BranchTree Grid.Row="3"
+          <v:BranchTree Grid.Row="5"
                         x:Name="RemoteBranchTree"
                         Height="0"
                         Margin="8,0,4,0"
@@ -282,7 +302,7 @@
                         SearchRequested="OnToggleFilter"/>
 
           <!-- Tags -->
-          <ToggleButton Grid.Row="4" Classes="group_expander" IsChecked="{Binding IsTagGroupExpanded, Mode=TwoWay}">
+          <ToggleButton Grid.Row="6" Classes="group_expander" IsChecked="{Binding IsTagGroupExpanded, Mode=TwoWay}">
             <Grid ColumnDefinitions="16,*,Auto,Auto,Auto">
               <Path Grid.Column="0" Width="11" Height="11" Margin="2,1,0,0" HorizontalAlignment="Left" Data="{StaticResource Icons.Tags}" Fill="{DynamicResource Brush.FG2}"/>
               <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -317,7 +337,7 @@
               </Button>
             </Grid>
           </ToggleButton>
-          <v:TagsView Grid.Row="5"
+          <v:TagsView Grid.Row="7"
                       x:Name="TagsList"
                       Height="0"
                       Margin="8,0,4,0"
@@ -330,7 +350,7 @@
                       SearchRequested="OnToggleFilter"/>
 
           <!-- Submodules -->
-          <ToggleButton Grid.Row="6" Classes="group_expander" IsChecked="{Binding IsSubmoduleGroupExpanded, Mode=TwoWay}">
+          <ToggleButton Grid.Row="8" Classes="group_expander" IsChecked="{Binding IsSubmoduleGroupExpanded, Mode=TwoWay}">
             <Grid ColumnDefinitions="16,*,Auto,Auto,Auto">
               <Path Grid.Column="0" Width="10" Height="10" Margin="2,0,0,0" HorizontalAlignment="Left" Data="{StaticResource Icons.Submodules}" Fill="{DynamicResource Brush.FG2}"/>
               <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -364,7 +384,7 @@
               </Button>
             </Grid>
           </ToggleButton>
-          <v:SubmodulesView Grid.Row="7"
+          <v:SubmodulesView Grid.Row="9"
                             x:Name="SubmoduleList"
                             Height="0"
                             Margin="8,0,4,0"
@@ -375,7 +395,7 @@
                             SearchRequested="OnToggleFilter"/>
 
           <!-- Worktrees -->
-          <ToggleButton Grid.Row="8" Classes="group_expander" IsChecked="{Binding IsWorktreeGroupExpanded, Mode=TwoWay}">
+          <ToggleButton Grid.Row="10" Classes="group_expander" IsChecked="{Binding IsWorktreeGroupExpanded, Mode=TwoWay}">
             <Grid ColumnDefinitions="16,*,Auto,Auto">
               <Path Grid.Column="0" Width="11" Height="11" Margin="1,0,0,0" HorizontalAlignment="Left" Data="{StaticResource Icons.Worktrees}" Fill="{DynamicResource Brush.FG2}"/>
               <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -401,7 +421,7 @@
               </Button>
             </Grid>
           </ToggleButton>
-          <ListBox Grid.Row="9"
+          <ListBox Grid.Row="11"
                    x:Name="WorktreeList"
                    Height="0"
                    Margin="12,0,4,0"

@@ -183,6 +183,18 @@ namespace SourceGit.Models
             set;
         } = 0;
 
+        public bool IsPinnedBranchesExpandedInSideBar
+        {
+            get;
+            set;
+        } = true;
+
+        public List<string> PinnedBranches
+        {
+            get;
+            set;
+        } = [];
+
         public bool IsLocalBranchesExpandedInSideBar
         {
             get;
@@ -266,6 +278,9 @@ namespace SourceGit.Models
                 }
             }
 
+            states ??= new RepositoryUIStates();
+            states.PinnedBranches ??= [];
+            states.ExpandedBranchNodesInSideBar ??= [];
             states._file = fullpath;
             return states;
         }
@@ -380,6 +395,47 @@ namespace SourceGit.Models
                     break;
                 }
             }
+        }
+
+        public bool IsBranchPinned(string fullName)
+        {
+            return PinnedBranches != null && PinnedBranches.Contains(fullName);
+        }
+
+        public bool TogglePinnedBranch(string fullName)
+        {
+            PinnedBranches ??= [];
+            var idx = PinnedBranches.IndexOf(fullName);
+            if (idx >= 0)
+            {
+                PinnedBranches.RemoveAt(idx);
+                return false;
+            }
+
+            PinnedBranches.Add(fullName);
+            return true;
+        }
+
+        public void RenamePinnedBranch(string oldName, string newName)
+        {
+            var idx = PinnedBranches.IndexOf(oldName);
+            if (idx >= 0)
+                PinnedBranches[idx] = newName;
+        }
+
+        public bool PrunePinnedBranches(HashSet<string> existingFullNames)
+        {
+            var dirty = false;
+            for (var i = PinnedBranches.Count - 1; i >= 0; i--)
+            {
+                if (!existingFullNames.Contains(PinnedBranches[i]))
+                {
+                    PinnedBranches.RemoveAt(i);
+                    dirty = true;
+                }
+            }
+
+            return dirty;
         }
 
         public void RemoveBranchFiltersByPrefix(string pattern)

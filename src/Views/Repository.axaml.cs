@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 using Avalonia;
 using Avalonia.Controls;
@@ -69,20 +70,30 @@ namespace SourceGit.Views
             e.Handled = true;
         }
 
+        private void OnPinnedBranchTreeSelectionChanged(object _1, RoutedEventArgs _2)
+        {
+            LocalBranchTree.UnselectAll();
+            RemoteBranchTree.UnselectAll();
+            TagsList.UnselectAll();
+        }
+
         private void OnLocalBranchTreeSelectionChanged(object _1, RoutedEventArgs _2)
         {
+            PinnedBranchTree.UnselectAll();
             RemoteBranchTree.UnselectAll();
             TagsList.UnselectAll();
         }
 
         private void OnRemoteBranchTreeSelectionChanged(object _1, RoutedEventArgs _2)
         {
+            PinnedBranchTree.UnselectAll();
             LocalBranchTree.UnselectAll();
             TagsList.UnselectAll();
         }
 
         private void OnTagsSelectionChanged(object _1, RoutedEventArgs _2)
         {
+            PinnedBranchTree.UnselectAll();
             LocalBranchTree.UnselectAll();
             RemoteBranchTree.UnselectAll();
         }
@@ -193,18 +204,20 @@ namespace SourceGit.Views
             if (!IsLoaded)
                 return;
 
-            var leftHeight = LeftSidebarGroups.Bounds.Height - 28.0 * 5 - 4;
-            if (leftHeight <= 0)
-                return;
+            var leftHeight = LeftSidebarGroups.Bounds.Height - 28.0 * 6 - 4;
 
+            var pinnedBranchRows = vm.IsPinnedBranchGroupExpanded ? PinnedBranchTree.Rows.Count : 0;
             var localBranchRows = vm.IsLocalBranchGroupExpanded ? LocalBranchTree.Rows.Count : 0;
             var remoteBranchRows = vm.IsRemoteGroupExpanded ? RemoteBranchTree.Rows.Count : 0;
-            var desiredBranches = (localBranchRows + remoteBranchRows) * 24.0;
+            var desiredPinned = pinnedBranchRows * 24.0;
+            var desiredLocal = localBranchRows * 24.0;
+            var desiredRemote = remoteBranchRows * 24.0;
+            var desiredBranches = desiredPinned + desiredLocal + desiredRemote;
             var desiredTag = vm.IsTagGroupExpanded ? 24.0 * TagsList.Rows : 0;
             var desiredSubmodule = vm.IsSubmoduleGroupExpanded ? 24.0 * SubmoduleList.Rows : 0;
             var desiredWorktree = vm.IsWorktreeGroupExpanded ? 24.0 * vm.Worktrees.Count : 0;
             var desiredOthers = desiredTag + desiredSubmodule + desiredWorktree;
-            var hasOverflow = (desiredBranches + desiredOthers > leftHeight);
+            var hasOverflow = leftHeight > 0 && (desiredBranches + desiredOthers > leftHeight);
 
             if (vm.IsWorktreeGroupExpanded)
             {
@@ -220,7 +233,7 @@ namespace SourceGit.Views
 
                 leftHeight -= height;
                 WorktreeList.Height = height;
-                hasOverflow = (desiredBranches + desiredTag + desiredSubmodule) > leftHeight;
+                hasOverflow = leftHeight > 0 && (desiredBranches + desiredTag + desiredSubmodule) > leftHeight;
             }
 
             if (vm.IsSubmoduleGroupExpanded)
@@ -237,7 +250,7 @@ namespace SourceGit.Views
 
                 leftHeight -= height;
                 SubmoduleList.Height = height;
-                hasOverflow = (desiredBranches + desiredTag) > leftHeight;
+                hasOverflow = leftHeight > 0 && (desiredBranches + desiredTag) > leftHeight;
             }
 
             if (vm.IsTagGroupExpanded)
@@ -256,53 +269,57 @@ namespace SourceGit.Views
                 TagsList.Height = height;
             }
 
-            if (leftHeight > 0 && desiredBranches > leftHeight)
+            var slots = new List<(double Desired, Action<double> Apply)>();
+            if (vm.IsPinnedBranchGroupExpanded)
+                slots.Add((desiredPinned, h => PinnedBranchTree.Height = h));
+            if (vm.IsLocalBranchGroupExpanded)
+                slots.Add((desiredLocal, h => LocalBranchTree.Height = h));
+            if (vm.IsRemoteGroupExpanded)
+                slots.Add((desiredRemote, h => RemoteBranchTree.Height = h));
+
+            AssignBranchTreeHeights(leftHeight, slots);
+        }
+
+        private static void AssignBranchTreeHeights(double available, List<(double Desired, Action<double> Apply)> slots)
+        {
+            if (slots.Count == 0)
+                return;
+
+            var total = 0.0;
+            foreach (var slot in slots)
+                total += slot.Desired;
+
+            if (available <= 0 || total <= available)
             {
-                var local = localBranchRows * 24.0;
-                var remote = remoteBranchRows * 24.0;
-                var half = leftHeight / 2;
-                if (vm.IsLocalBranchGroupExpanded)
-                {
-                    if (vm.IsRemoteGroupExpanded)
-                    {
-                        if (local < half)
-                        {
-                            LocalBranchTree.Height = local;
-                            RemoteBranchTree.Height = leftHeight - local;
-                        }
-                        else if (remote < half)
-                        {
-                            RemoteBranchTree.Height = remote;
-                            LocalBranchTree.Height = leftHeight - remote;
-                        }
-                        else
-                        {
-                            LocalBranchTree.Height = half;
-                            RemoteBranchTree.Height = half;
-                        }
-                    }
-                    else
-                    {
-                        LocalBranchTree.Height = leftHeight;
-                    }
-                }
-                else if (vm.IsRemoteGroupExpanded)
-                {
-                    RemoteBranchTree.Height = leftHeight;
-                }
+                foreach (var slot in slots)
+                    slot.Apply(slot.Desired);
+                return;
             }
-            else
+
+            var remaining = new List<(double Desired, Action<double> Apply)>(slots);
+            var space = available;
+            while (remaining.Count > 0)
             {
-                if (vm.IsLocalBranchGroupExpanded)
+                var fair = space / remaining.Count;
+                var assignedSmall = false;
+                for (var i = remaining.Count - 1; i >= 0; i--)
                 {
-                    var height = localBranchRows * 24;
-                    LocalBranchTree.Height = height;
+                    var slot = remaining[i];
+                    if (slot.Desired <= fair)
+                    {
+                        slot.Apply(slot.Desired);
+                        space -= slot.Desired;
+                        remaining.RemoveAt(i);
+                        assignedSmall = true;
+                    }
                 }
 
-                if (vm.IsRemoteGroupExpanded)
+                if (!assignedSmall)
                 {
-                    var height = remoteBranchRows * 24;
-                    RemoteBranchTree.Height = height;
+                    var share = space / remaining.Count;
+                    foreach (var slot in remaining)
+                        slot.Apply(share);
+                    break;
                 }
             }
         }

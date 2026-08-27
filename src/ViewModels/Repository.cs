@@ -147,8 +147,7 @@ namespace SourceGit.ViewModels
                 if (SetProperty(ref _filter, value))
                 {
                     var builder = BuildBranchTree(_branches, _remotes);
-                    LocalBranchTrees = builder.Locals;
-                    RemoteBranchTrees = builder.Remotes;
+                    ApplyBranchTrees(builder);
                     VisibleTags = BuildVisibleTags();
                     VisibleSubmodules = BuildVisibleSubmodules();
                 }
@@ -180,6 +179,17 @@ namespace SourceGit.ViewModels
                         _workingCopy.UseAmend = false;
                 }
             }
+        }
+
+        public List<BranchTreeNode> PinnedBranchTrees
+        {
+            get => _pinnedBranchTrees;
+            private set => SetProperty(ref _pinnedBranchTrees, value);
+        }
+
+        public int PinnedBranchesCount
+        {
+            get => _uiStates.PinnedBranches?.Count ?? 0;
         }
 
         public List<BranchTreeNode> LocalBranchTrees
@@ -304,6 +314,19 @@ namespace SourceGit.ViewModels
             get => _searchCommitContext;
         }
 
+        public bool IsPinnedBranchGroupExpanded
+        {
+            get => _uiStates.IsPinnedBranchesExpandedInSideBar;
+            set
+            {
+                if (value != _uiStates.IsPinnedBranchesExpandedInSideBar)
+                {
+                    _uiStates.IsPinnedBranchesExpandedInSideBar = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public bool IsLocalBranchGroupExpanded
         {
             get => _uiStates.IsLocalBranchesExpandedInSideBar;
@@ -378,8 +401,7 @@ namespace SourceGit.ViewModels
                 OnPropertyChanged();
 
                 var builder = BuildBranchTree(_branches, _remotes);
-                LocalBranchTrees = builder.Locals;
-                RemoteBranchTrees = builder.Remotes;
+                ApplyBranchTrees(builder);
             }
         }
 
@@ -392,8 +414,7 @@ namespace SourceGit.ViewModels
                 OnPropertyChanged();
 
                 var builder = BuildBranchTree(_branches, _remotes);
-                LocalBranchTrees = builder.Locals;
-                RemoteBranchTrees = builder.Remotes;
+                ApplyBranchTrees(builder);
             }
         }
 
@@ -815,7 +836,7 @@ namespace SourceGit.ViewModels
             }
 
             var builder = BuildBranchTree(locals, [], false);
-            LocalBranchTrees = builder.Locals;
+            ApplyLocalBranchTree(builder);
             LocalBranchesCount = count;
 
             RefreshCommits();
@@ -851,7 +872,7 @@ namespace SourceGit.ViewModels
             }
 
             var builder = BuildBranchTree(locals, [], false);
-            LocalBranchTrees = builder.Locals;
+            ApplyLocalBranchTree(builder);
             CurrentBranch = checkouted;
 
             RefreshCommits();
@@ -865,6 +886,7 @@ namespace SourceGit.ViewModels
 
             var newFullName = $"refs/heads/{newName}";
             _uiStates.RenameBranchFilter(b.FullName, newFullName);
+            _uiStates.RenamePinnedBranch(b.FullName, newFullName);
 
             var renamed = new Models.Branch
             {
@@ -897,7 +919,7 @@ namespace SourceGit.ViewModels
             }
 
             var builder = BuildBranchTree(locals, [], false);
-            LocalBranchTrees = builder.Locals;
+            ApplyLocalBranchTree(builder);
 
             RefreshCommits();
             RefreshWorktrees();
@@ -979,6 +1001,7 @@ namespace SourceGit.ViewModels
 
             ResetBranchTreeFilterMode(LocalBranchTrees);
             ResetBranchTreeFilterMode(RemoteBranchTrees);
+            ResetBranchTreeFilterMode(PinnedBranchTrees);
             ResetTagFilterMode();
             RefreshCommits();
         }
@@ -990,6 +1013,23 @@ namespace SourceGit.ViewModels
                 HistoryFilterMode = _uiStates.GetHistoryFilterMode();
                 RefreshHistoryFilters(true);
             }
+        }
+
+        public bool IsBranchPinned(Models.Branch branch)
+        {
+            return branch != null && _uiStates.IsBranchPinned(branch.FullName);
+        }
+
+        public void TogglePinnedBranch(Models.Branch branch)
+        {
+            if (branch == null || branch.IsDetachedHead)
+                return;
+
+            _uiStates.TogglePinnedBranch(branch.FullName);
+            _uiStates.Save();
+
+            var builder = BuildBranchTree(_branches, _remotes);
+            ApplyBranchTrees(builder);
         }
 
         public void UpdateBranchNodeIsExpanded(BranchTreeNode node)
@@ -1166,8 +1206,7 @@ namespace SourceGit.ViewModels
                     Remotes = remotes;
                     Branches = branches;
                     CurrentBranch = branches.Find(x => x.IsCurrent);
-                    LocalBranchTrees = builder.Locals;
-                    RemoteBranchTrees = builder.Remotes;
+                    ApplyBranchTrees(builder);
 
                     var localBranchesCount = 0;
                     foreach (var b in branches)
@@ -1679,6 +1718,96 @@ namespace SourceGit.ViewModels
             return null;
         }
 
+        private void ApplyBranchTrees(BranchTreeNode.Builder builder)
+        {
+            LocalBranchTrees = builder.Locals;
+            RemoteBranchTrees = builder.Remotes;
+            ApplyPinnedFlags(builder.Locals);
+            ApplyPinnedFlags(builder.Remotes);
+            RefreshPinnedBranchTrees();
+        }
+
+        private void ApplyLocalBranchTree(BranchTreeNode.Builder builder)
+        {
+            LocalBranchTrees = builder.Locals;
+            ApplyPinnedFlags(builder.Locals);
+            RefreshPinnedBranchTrees();
+        }
+
+        private void RefreshPinnedBranchTrees()
+        {
+            if (string.IsNullOrEmpty(_filter))
+            {
+                var existing = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var b in _branches)
+                    existing.Add(b.FullName);
+
+                if (_uiStates.PrunePinnedBranches(existing))
+                    _uiStates.Save();
+            }
+
+            var nodes = BuildPinnedTree(_branches);
+            var filterMap = _uiStates.GetHistoryFiltersMap();
+            UpdateBranchTreeFilterMode(nodes, filterMap);
+            PinnedBranchTrees = nodes;
+            OnPropertyChanged(nameof(PinnedBranchesCount));
+        }
+
+        private List<BranchTreeNode> BuildPinnedTree(List<Models.Branch> branches)
+        {
+            var nodes = new List<BranchTreeNode>();
+            if (_uiStates.PinnedBranches == null || _uiStates.PinnedBranches.Count == 0)
+                return nodes;
+
+            var pinned = new HashSet<string>(_uiStates.PinnedBranches, StringComparer.Ordinal);
+            foreach (var b in branches)
+            {
+                if (b.IsDetachedHead || !pinned.Contains(b.FullName))
+                    continue;
+
+                if (!string.IsNullOrEmpty(_filter) && !b.FullName.Contains(_filter, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                nodes.Add(BranchTreeNode.CreatePinned(b));
+            }
+
+            if (_uiStates.LocalBranchSortMode == Models.BranchSortMode.Name)
+            {
+                nodes.Sort((l, r) => Models.NumericSort.Compare(l.Name, r.Name));
+            }
+            else
+            {
+                nodes.Sort((l, r) =>
+                {
+                    if (r.TimeToSort == l.TimeToSort)
+                        return Models.NumericSort.Compare(l.Name, r.Name);
+                    return r.TimeToSort.CompareTo(l.TimeToSort);
+                });
+            }
+
+            return nodes;
+        }
+
+        private void ApplyPinnedFlags(List<BranchTreeNode> nodes)
+        {
+            if (nodes.Count == 0)
+                return;
+
+            var pinned = new HashSet<string>(_uiStates.PinnedBranches ?? [], StringComparer.Ordinal);
+            ApplyPinnedFlags(nodes, pinned);
+        }
+
+        private void ApplyPinnedFlags(List<BranchTreeNode> nodes, HashSet<string> pinned)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.Backend is Models.Branch branch)
+                    node.IsPinned = pinned.Contains(branch.FullName);
+                else if (node.Children.Count > 0)
+                    ApplyPinnedFlags(node.Children, pinned);
+            }
+        }
+
         private BranchTreeNode.Builder BuildBranchTree(List<Models.Branch> branches, List<Models.Remote> remotes, bool validateExpandedNodes = true)
         {
             var builder = new BranchTreeNode.Builder(_uiStates.LocalBranchSortMode, _uiStates.RemoteBranchSortMode);
@@ -1787,6 +1916,7 @@ namespace SourceGit.ViewModels
             var map = _uiStates.GetHistoryFiltersMap();
             UpdateBranchTreeFilterMode(LocalBranchTrees, map);
             UpdateBranchTreeFilterMode(RemoteBranchTrees, map);
+            UpdateBranchTreeFilterMode(PinnedBranchTrees, map);
             UpdateTagFilterMode(map);
             RefreshCommits();
         }
@@ -1949,6 +2079,7 @@ namespace SourceGit.ViewModels
         private List<Models.Remote> _remotes = [];
         private List<Models.Branch> _branches = [];
         private Models.Branch _currentBranch = null;
+        private List<BranchTreeNode> _pinnedBranchTrees = [];
         private List<BranchTreeNode> _localBranchTrees = [];
         private List<BranchTreeNode> _remoteBranchTrees = [];
         private List<Worktree> _worktrees = [];

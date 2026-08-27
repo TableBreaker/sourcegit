@@ -81,6 +81,7 @@
   <x:String x:Key="Text.BranchCM.FetchInto" xml:space="preserve">拉取(fetch) ${0}$ 至 ${1}$...</x:String>
   <x:String x:Key="Text.BranchCM.Finish" xml:space="preserve">GIT工作流 - 完成 ${0}$...</x:String>
   <x:String x:Key="Text.BranchCM.InteractiveRebase.Manually" xml:space="preserve">交互式变基 ${0}$ 到 ${1}$</x:String>
+  <x:String x:Key="Text.BranchCM.Pin" xml:space="preserve">置顶分支</x:String>
   <x:String x:Key="Text.BranchCM.Merge" xml:space="preserve">合并(merge) ${0}$ 到 ${1}$...</x:String>
   <x:String x:Key="Text.BranchCM.MergeMultiBranches" xml:space="preserve">合并(merge) {0} 个分支到当前分支...</x:String>
   <x:String x:Key="Text.BranchCM.Pull" xml:space="preserve">拉回(pull) ${0}$...</x:String>
@@ -91,6 +92,7 @@
   <x:String x:Key="Text.BranchCM.ResetToSelectedCommit" xml:space="preserve">重置(reset) ${0}$ 到 ${1}$...</x:String>
   <x:String x:Key="Text.BranchCM.SwitchToWorktree" xml:space="preserve">切换到 ${0}$ (工作树)</x:String>
   <x:String x:Key="Text.BranchCM.Tracking" xml:space="preserve">切换上游分支...</x:String>
+  <x:String x:Key="Text.BranchCM.Unpin" xml:space="preserve">取消置顶</x:String>
   <x:String x:Key="Text.BranchTree.Ahead" xml:space="preserve">领先 {0} 个提交</x:String>
   <x:String x:Key="Text.BranchTree.AheadBehind" xml:space="preserve">领先 {0} 个提交，落后 {1} 个提交</x:String>
   <x:String x:Key="Text.BranchTree.Behind" xml:space="preserve">落后 {0} 个提交</x:String>
@@ -820,6 +822,7 @@
   <x:String x:Key="Text.Repository.HistoriesOrder.ByDate" xml:space="preserve">按提交时间</x:String>
   <x:String x:Key="Text.Repository.HistoriesOrder.Topo" xml:space="preserve">按拓扑排序</x:String>
   <x:String x:Key="Text.Repository.LocalBranches" xml:space="preserve">本地分支</x:String>
+  <x:String x:Key="Text.Repository.PinnedBranches" xml:space="preserve">已置顶</x:String>
   <x:String x:Key="Text.Repository.MoreOptions" xml:space="preserve">更多选项...</x:String>
   <x:String x:Key="Text.Repository.NavigateToCurrentHead" xml:space="preserve">定位HEAD</x:String>
   <x:String x:Key="Text.Repository.NewBranch" xml:space="preserve">新建分支</x:String>

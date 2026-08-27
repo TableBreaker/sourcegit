@@ -77,6 +77,7 @@
   <x:String x:Key="Text.BranchCM.FetchInto" xml:space="preserve">Fetch ${0}$ into ${1}$</x:String>
   <x:String x:Key="Text.BranchCM.Finish" xml:space="preserve">Git Flow - Finish ${0}$...</x:String>
   <x:String x:Key="Text.BranchCM.InteractiveRebase.Manually" xml:space="preserve">Interactively Rebase ${0}$ on ${1}$</x:String>
+  <x:String x:Key="Text.BranchCM.Pin" xml:space="preserve">Pin Branch</x:String>
   <x:String x:Key="Text.BranchCM.Merge" xml:space="preserve">Merge ${0}$ into ${1}$...</x:String>
   <x:String x:Key="Text.BranchCM.MergeMultiBranches" xml:space="preserve">Merge selected {0} branches into current...</x:String>
   <x:String x:Key="Text.BranchCM.Pull" xml:space="preserve">Pull ${0}$...</x:String>
@@ -87,6 +88,7 @@
   <x:String x:Key="Text.BranchCM.ResetToSelectedCommit" xml:space="preserve">Reset ${0}$ to ${1}$...</x:String>
   <x:String x:Key="Text.BranchCM.SwitchToWorktree" xml:space="preserve">Switch to ${0}$ (worktree)</x:String>
   <x:String x:Key="Text.BranchCM.Tracking" xml:space="preserve">Set Tracking Branch...</x:String>
+  <x:String x:Key="Text.BranchCM.Unpin" xml:space="preserve">Unpin Branch</x:String>
   <x:String x:Key="Text.BranchTree.Ahead" xml:space="preserve">{0} commit(s) ahead</x:String>
   <x:String x:Key="Text.BranchTree.AheadBehind" xml:space="preserve">{0} commit(s) ahead, {1} commit(s) behind</x:String>
   <x:String x:Key="Text.BranchTree.Behind" xml:space="preserve">{0} commit(s) behind</x:String>
@@ -816,6 +818,7 @@
   <x:String x:Key="Text.Repository.HistoriesOrder.ByDate" xml:space="preserve">Commit Date</x:String>
   <x:String x:Key="Text.Repository.HistoriesOrder.Topo" xml:space="preserve">Topologically</x:String>
   <x:String x:Key="Text.Repository.LocalBranches" xml:space="preserve">LOCAL BRANCHES</x:String>
+  <x:String x:Key="Text.Repository.PinnedBranches" xml:space="preserve">PINNED</x:String>
   <x:String x:Key="Text.Repository.MoreOptions" xml:space="preserve">More options...</x:String>
   <x:String x:Key="Text.Repository.NavigateToCurrentHead" xml:space="preserve">Navigate to HEAD</x:String>
   <x:String x:Key="Text.Repository.NewBranch" xml:space="preserve">Create Branch</x:String>
