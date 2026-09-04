@@ -18,6 +18,13 @@ namespace SourceGit.Views
             InitializeComponent();
         }
 
+        private void ToggleToolbarLabels(object sender, RoutedEventArgs e)
+        {
+            var pref = ViewModels.Preferences.Instance;
+            pref.ShowToolbarLabels = !pref.ShowToolbarLabels;
+            e.Handled = true;
+        }
+
         private void OpenWithExternalTools(object sender, RoutedEventArgs ev)
         {
             if (sender is Button button && DataContext is ViewModels.Repository repo)

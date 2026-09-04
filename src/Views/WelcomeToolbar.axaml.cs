@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 
 namespace SourceGit.Views
 {
@@ -7,6 +8,13 @@ namespace SourceGit.Views
         public WelcomeToolbar()
         {
             InitializeComponent();
+        }
+
+        private void ToggleToolbarLabels(object sender, RoutedEventArgs e)
+        {
+            var pref = ViewModels.Preferences.Instance;
+            pref.ShowToolbarLabels = !pref.ShowToolbarLabels;
+            e.Handled = true;
         }
     }
 }

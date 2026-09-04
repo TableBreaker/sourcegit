@@ -647,6 +647,36 @@
   <Style Selector="Button.icon_button:disabled Path">
     <Setter Property="Fill" Value="{DynamicResource Brush.FG2}"/>
   </Style>
+  <Style Selector="Button.icon_button:disabled TextBlock.toolbar_caption">
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG2}"/>
+  </Style>
+
+  <Style Selector="v|RepositoryToolbar, v|WelcomeToolbar">
+    <Setter Property="MinHeight" Value="36"/>
+  </Style>
+  <Style Selector="v|RepositoryToolbar.labeled, v|WelcomeToolbar.labeled">
+    <Setter Property="MinHeight" Value="50"/>
+  </Style>
+  <Style Selector="v|RepositoryToolbar Button.icon_button, v|WelcomeToolbar Button.icon_button">
+    <Setter Property="Width" Value="32"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="v|RepositoryToolbar.labeled Button.icon_button, v|WelcomeToolbar.labeled Button.icon_button">
+    <Setter Property="Width" Value="NaN"/>
+    <Setter Property="MinWidth" Value="48"/>
+    <Setter Property="Padding" Value="4,2"/>
+  </Style>
+  <Style Selector="TextBlock.toolbar_caption">
+    <Setter Property="IsVisible" Value="False"/>
+    <Setter Property="FontSize" Value="10"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="TextAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="v|RepositoryToolbar.labeled TextBlock.toolbar_caption, v|WelcomeToolbar.labeled TextBlock.toolbar_caption">
+    <Setter Property="IsVisible" Value="True"/>
+  </Style>
 
   <Style Selector="Button.flat">
     <Setter Property="BorderThickness" Value="1"/>
@@ -1022,7 +1052,7 @@
       <ControlTemplate>
         <Grid Background="Transparent" ColumnDefinitions="Auto,*">
           <Border x:Name="Border" Grid.Column="0" Width="16" Height="16" VerticalAlignment="Center" BorderBrush="{DynamicResource Brush.Border1}" BorderThickness="1" Background="Transparent" CornerRadius="2">
-            <Path x:Name="Icon" Height="12" Width="12" Data="{DynamicResource Icons.Check}" Fill="{DynamicResource Brush.Accent}" IsVisible="False" Margin="0,2,0,0"/>
+            <Path x:Name="Icon" Height="12" Width="12" Data="{DynamicResource Icons.Check}" Fill="{DynamicResource Brush.CheckBox.Checked}" IsVisible="False" Margin="0,2,0,0"/>
           </Border>
 
           <ContentPresenter x:Name="ContentPresenter"
