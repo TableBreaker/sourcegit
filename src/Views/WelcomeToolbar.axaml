@@ -5,10 +5,20 @@
              xmlns:vm="using:SourceGit.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="SourceGit.Views.WelcomeToolbar"
-             x:DataType="vm:Welcome">
+             x:DataType="vm:Welcome"
+             Classes.labeled="{Binding Source={x:Static vm:Preferences.Instance}, Path=ShowToolbarLabels}">
   <Grid ColumnDefinitions="Auto,*,Auto" Margin="4,0">
     <StackPanel Grid.Column="0" Orientation="Horizontal">
-      <Button Classes="icon_button" Width="32" Command="{Binding Clone}">
+      <Button Classes="icon_button"
+              Click="ToggleToolbarLabels"
+              ToolTip.Tip="Toggle button labels">
+        <StackPanel Orientation="Vertical" Spacing="1" HorizontalAlignment="Center">
+          <Path Width="14" Height="14" HorizontalAlignment="Center" Data="{StaticResource Icons.List}"/>
+          <TextBlock Classes="toolbar_caption" Text="Labels"/>
+        </StackPanel>
+      </Button>
+
+      <Button Classes="icon_button" Command="{Binding Clone}">
         <ToolTip.Tip>
           <TextBlock>
             <Run Text="{DynamicResource Text.Welcome.Clone}"/>
@@ -16,10 +26,13 @@
             <Run Text="{OnPlatform Ctrl+R, macOS=⌘+R}" FontSize="11" Foreground="{DynamicResource MenuFlyoutItemKeyboardAcceleratorTextForeground}"/>
           </TextBlock>
         </ToolTip.Tip>
-        <Path Width="16" Height="16" Data="{StaticResource Icons.Clone}" Margin="0,4,0,0"/>
+        <StackPanel Orientation="Vertical" Spacing="1">
+          <Path Width="16" Height="16" HorizontalAlignment="Center" Data="{StaticResource Icons.Clone}" Margin="0,4,0,0"/>
+          <TextBlock Classes="toolbar_caption" Text="Clone"/>
+        </StackPanel>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Command="{Binding OpenLocalRepository}">
+      <Button Classes="icon_button" Command="{Binding OpenLocalRepository}">
         <ToolTip.Tip>
           <TextBlock>
             <Run Text="{DynamicResource Text.Welcome.OpenOrInit}"/>
@@ -27,10 +40,13 @@
             <Run Text="{OnPlatform Ctrl+L, macOS=⌘+L}" FontSize="11" Foreground="{DynamicResource MenuFlyoutItemKeyboardAcceleratorTextForeground}"/>
           </TextBlock>
         </ToolTip.Tip>
-        <Path Width="14" Height="14" Data="{StaticResource Icons.Folder.Open}" Margin="0,2,0,0"/>
+        <StackPanel Orientation="Vertical" Spacing="1">
+          <Path Width="14" Height="14" HorizontalAlignment="Center" Data="{StaticResource Icons.Folder.Open}" Margin="0,2,0,0"/>
+          <TextBlock Classes="toolbar_caption" Text="Open"/>
+        </StackPanel>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Command="{Binding OpenTerminal}">
+      <Button Classes="icon_button" Command="{Binding OpenTerminal}">
         <ToolTip.Tip>
           <TextBlock>
             <Run Text="{DynamicResource Text.Welcome.OpenTerminal}"/>
@@ -38,17 +54,26 @@
             <Run Text="{OnPlatform Ctrl+`, macOS=Λ+`}" FontSize="11" Foreground="{DynamicResource MenuFlyoutItemKeyboardAcceleratorTextForeground}"/>
           </TextBlock>
         </ToolTip.Tip>
-        <Path Width="13" Height="13" Data="{StaticResource Icons.Terminal}"/>
+        <StackPanel Orientation="Vertical" Spacing="1">
+          <Path Width="13" Height="13" HorizontalAlignment="Center" Data="{StaticResource Icons.Terminal}"/>
+          <TextBlock Classes="toolbar_caption" Text="Terminal"/>
+        </StackPanel>
       </Button>
     </StackPanel>
 
     <StackPanel Grid.Column="2" Orientation="Horizontal">
-      <Button Classes="icon_button" Width="32" Command="{Binding AddRootNode}" ToolTip.Tip="{DynamicResource Text.Welcome.AddRootFolder}">
-        <Path Width="14" Height="14" Margin="0,2,0,0" Data="{StaticResource Icons.Folder.Add}"/>
+      <Button Classes="icon_button" Command="{Binding AddRootNode}" ToolTip.Tip="{DynamicResource Text.Welcome.AddRootFolder}">
+        <StackPanel Orientation="Vertical" Spacing="1">
+          <Path Width="14" Height="14" HorizontalAlignment="Center" Margin="0,2,0,0" Data="{StaticResource Icons.Folder.Add}"/>
+          <TextBlock Classes="toolbar_caption" Text="Add"/>
+        </StackPanel>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Command="{Binding ScanDefaultCloneDir}" ToolTip.Tip="{DynamicResource Text.Welcome.ScanDefaultCloneDir}">
-        <Path Width="14" Height="14" Data="{StaticResource Icons.Scan}"/>
+      <Button Classes="icon_button" Command="{Binding ScanDefaultCloneDir}" ToolTip.Tip="{DynamicResource Text.Welcome.ScanDefaultCloneDir}">
+        <StackPanel Orientation="Vertical" Spacing="1">
+          <Path Width="14" Height="14" HorizontalAlignment="Center" Data="{StaticResource Icons.Scan}"/>
+          <TextBlock Classes="toolbar_caption" Text="Scan"/>
+        </StackPanel>
       </Button>
     </StackPanel>
   </Grid>
